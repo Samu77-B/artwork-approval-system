@@ -94,6 +94,7 @@ function sendClientEmail(clientEmail, id, filename) {
   console.log('Subject: Artwork Approval Request - PBJA');
   console.log('Review URL:', reviewUrl);
   console.log('========================');
+  return Promise.resolve();
   
   // Uncomment and configure for production
   /*
@@ -136,6 +137,7 @@ function sendAdminEmail(action, notes, record, clientEmail) {
   if (notes) console.log('Notes:', notes);
   console.log('Artwork:', `${BASE_URL}/uploads/${record.file}`);
   console.log('========================');
+  return Promise.resolve();
   
   // Uncomment and configure for production
   /*
