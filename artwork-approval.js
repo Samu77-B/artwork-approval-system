@@ -23,24 +23,36 @@ async function loadArtworkFromReview() {
   const reviewId = urlParams.get('id');
   
   if (reviewId) {
+    console.log('Review ID found:', reviewId);
+    
+    // Hide profile switcher buttons for clients
+    const profileSwitcher = document.querySelector('.profile-switcher');
+    if (profileSwitcher) profileSwitcher.style.display = 'none';
+    
+    // Switch to client view immediately
+    currentProfile = 'client';
+    profileBtns.forEach(b => b.classList.remove('active'));
+    const clientBtn = document.querySelector('[data-profile="client"]');
+    if (clientBtn) clientBtn.classList.add('active');
+    
+    if (adminSection) adminSection.style.display = 'none';
+    if (clientSection) clientSection.style.display = 'block';
+    
     try {
       const response = await fetch(`/api/artwork/${reviewId}`);
       const data = await response.json();
       
       if (data.artworkUrl) {
-        // Switch to client view
-        currentProfile = 'client';
-        profileBtns.forEach(b => b.classList.remove('active'));
-        document.querySelector('[data-profile="client"]').classList.add('active');
-        adminSection.style.display = 'none';
-        clientSection.style.display = 'block';
-        
         // Display artwork
         const img = document.createElement('img');
         img.src = data.artworkUrl;
         img.style.objectFit = 'contain';
-        artworkPreview.innerHTML = '';
-        artworkPreview.appendChild(img);
+        img.style.maxWidth = '100%';
+        img.style.maxHeight = '400px';
+        if (artworkPreview) {
+          artworkPreview.innerHTML = '';
+          artworkPreview.appendChild(img);
+        }
       }
     } catch (error) {
       console.error('Error loading artwork:', error);
