@@ -50,47 +50,89 @@ async function loadArtworkFromReview() {
       if (data.artworkUrl) {
         console.log('Loading artwork from:', data.artworkUrl);
         
-        // Display artwork
-        const img = document.createElement('img');
-        img.src = data.artworkUrl;
-        img.alt = 'Artwork for approval';
-        
-        // Add error handling
-        img.onerror = function() {
-          console.error('Failed to load image:', data.artworkUrl);
-          if (artworkPreview) {
-            artworkPreview.innerHTML = `
-              <div style="text-align: center; color: #e74c3c; font-size: 1.1rem;">
-                <p>Unable to load artwork</p>
-                <p style="font-size: 0.9rem; margin-top: 10px;">
-                  <a href="${data.artworkUrl}" target="_blank" style="color: #0074d9;">Click here to view artwork directly</a>
-                </p>
-              </div>`;
-          }
-        };
-        
-        // Add load success handling
-        img.onload = function() {
-          console.log('Image loaded successfully');
-        };
-        
-        // Set a timeout for slow loading images
-        setTimeout(() => {
-          if (!img.complete && artworkPreview && artworkPreview.contains(img)) {
-            console.warn('Image taking too long to load, showing fallback');
-            artworkPreview.innerHTML = `
-              <div style="text-align: center; color: #f39c12; font-size: 1.1rem;">
-                <p>Image is taking longer than expected to load</p>
-                <p style="font-size: 0.9rem; margin-top: 10px;">
-                  <a href="${data.artworkUrl}" target="_blank" style="color: #0074d9;">Click here to view artwork directly</a>
-                </p>
-              </div>`;
-          }
-        }, 10000); // 10 second timeout
+        // Detect file type from URL extension
+        const fileExtension = data.artworkUrl.toLowerCase().split('.').pop();
+        const isPDF = fileExtension === 'pdf';
+        const isImage = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(fileExtension);
         
         if (artworkPreview) {
           artworkPreview.innerHTML = '';
-          artworkPreview.appendChild(img);
+          
+          if (isPDF) {
+            // Handle PDF files
+            console.log('Displaying PDF artwork');
+            const embed = document.createElement('embed');
+            embed.src = data.artworkUrl;
+            embed.type = 'application/pdf';
+            embed.width = '100%';
+            embed.height = '100%';
+            embed.style.minHeight = '400px';
+            
+            // Add error handling for PDF
+            embed.onerror = function() {
+              console.error('Failed to load PDF:', data.artworkUrl);
+              artworkPreview.innerHTML = `
+                <div style="text-align: center; color: #e74c3c; font-size: 1.1rem;">
+                  <p>Unable to display PDF inline</p>
+                  <p style="font-size: 0.9rem; margin-top: 10px;">
+                    <a href="${data.artworkUrl}" target="_blank" style="color: #0074d9; text-decoration: none; background: #f8f9fa; padding: 10px 20px; border-radius: 6px; border: 1px solid #dee2e6;">📄 Open PDF in New Tab</a>
+                  </p>
+                </div>`;
+            };
+            
+            artworkPreview.appendChild(embed);
+            
+          } else if (isImage) {
+            // Handle image files
+            console.log('Displaying image artwork');
+            const img = document.createElement('img');
+            img.src = data.artworkUrl;
+            img.alt = 'Artwork for approval';
+            
+            // Add error handling for images
+            img.onerror = function() {
+              console.error('Failed to load image:', data.artworkUrl);
+              artworkPreview.innerHTML = `
+                <div style="text-align: center; color: #e74c3c; font-size: 1.1rem;">
+                  <p>Unable to load artwork</p>
+                  <p style="font-size: 0.9rem; margin-top: 10px;">
+                    <a href="${data.artworkUrl}" target="_blank" style="color: #0074d9; text-decoration: none; background: #f8f9fa; padding: 10px 20px; border-radius: 6px; border: 1px solid #dee2e6;">🖼️ View Image Directly</a>
+                  </p>
+                </div>`;
+            };
+            
+            // Add load success handling
+            img.onload = function() {
+              console.log('Image loaded successfully');
+            };
+            
+            // Set a timeout for slow loading images
+            setTimeout(() => {
+              if (!img.complete && artworkPreview && artworkPreview.contains(img)) {
+                console.warn('Image taking too long to load, showing fallback');
+                artworkPreview.innerHTML = `
+                  <div style="text-align: center; color: #f39c12; font-size: 1.1rem;">
+                    <p>Image is taking longer than expected to load</p>
+                    <p style="font-size: 0.9rem; margin-top: 10px;">
+                      <a href="${data.artworkUrl}" target="_blank" style="color: #0074d9; text-decoration: none; background: #f8f9fa; padding: 10px 20px; border-radius: 6px; border: 1px solid #dee2e6;">🖼️ View Image Directly</a>
+                    </p>
+                  </div>`;
+              }
+            }, 10000); // 10 second timeout
+            
+            artworkPreview.appendChild(img);
+            
+          } else {
+            // Handle unsupported file types
+            console.log('Unsupported file type:', fileExtension);
+            artworkPreview.innerHTML = `
+              <div style="text-align: center; color: #666; font-size: 1.1rem;">
+                <p>Preview not available for this file type (.${fileExtension})</p>
+                <p style="font-size: 0.9rem; margin-top: 10px;">
+                  <a href="${data.artworkUrl}" target="_blank" style="color: #0074d9; text-decoration: none; background: #f8f9fa; padding: 10px 20px; border-radius: 6px; border: 1px solid #dee2e6;">📁 Download File</a>
+                </p>
+              </div>`;
+          }
         }
       } else {
         if (artworkPreview) {
