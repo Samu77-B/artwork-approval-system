@@ -278,10 +278,14 @@ function sendClientEmail(clientEmail, id, filename) {
     });
     
     return transporter.sendMail({
-      from: 'PBJA Artwork Team <info@paperboyja.com>',
+      from: '"PBJA Artwork Team" <info@paperboyja.com>',
       replyTo: 'info@paperboyja.com',
       to: clientEmail,
       subject: subject,
+      headers: {
+        'X-Mailer': 'PBJA Artwork Approval System',
+        'Organization': 'Paperboy Jamaica'
+      },
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
           <div style="background: #f8f9fa; padding: 20px; text-align: center;">
@@ -290,6 +294,13 @@ function sendClientEmail(clientEmail, id, filename) {
           </div>
           
           <div style="padding: 30px;">
+            <div style="background: linear-gradient(135deg, #007bff, #0056b3); color: white; padding: 15px; border-radius: 6px; text-align: center; margin-bottom: 25px;">
+              <p style="margin: 0; font-size: 14px; font-weight: 500;">
+                📧 This email is from <strong>PBJA (Paperboy Jamaica)</strong><br>
+                📞 Contact us: <a href="mailto:info@paperboyja.com" style="color: #cce7ff;">info@paperboyja.com</a>
+              </p>
+            </div>
+            
             <p style="font-size: 16px; color: #333; margin-bottom: 20px;">Hello,</p>
             
             <p style="font-size: 16px; color: #666; margin-bottom: 25px;">
@@ -419,9 +430,14 @@ function sendAdminEmail(action, notes, record, clientEmail) {
       'The client has requested AMENDMENTS to the artwork.';
     
     return transporter.sendMail({
-      from: process.env.EMAIL_USER,
+      from: '"PBJA Artwork Team" <info@paperboyja.com>',
+      replyTo: 'info@paperboyja.com',
       to: 'info@paperboyja.com',
       subject: subject,
+      headers: {
+        'X-Mailer': 'PBJA Artwork Approval System',
+        'Organization': 'Paperboy Jamaica'
+      },
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
           <div style="background: #f8f9fa; padding: 20px; text-align: center;">
