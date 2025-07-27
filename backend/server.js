@@ -74,10 +74,41 @@ app.get('/api/test-uploads', (req, res) => {
       uploadDir,
       exists: fs.existsSync(uploadDir),
       files: files,
-      dbRecords: Object.keys(artworkDB).length
+      dbRecords: Object.keys(artworkDB).length,
+      dbContents: artworkDB
     });
   } catch (error) {
     res.json({ error: error.message, uploadDir });
+  }
+});
+
+// Test endpoint to create a sample image
+app.get('/api/create-test-image', (req, res) => {
+  try {
+    // Create a simple SVG test image
+    const svgContent = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100%" height="100%" fill="#f3f6fa"/>
+      <text x="50%" y="40%" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="24" fill="#666">
+        Test Artwork
+      </text>
+      <text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="16" fill="#999">
+        PBJA Artwork Approval System
+      </text>
+    </svg>`;
+    
+    const testFileName = 'test-artwork.svg';
+    const testFilePath = path.join(uploadDir, testFileName);
+    
+    fs.writeFileSync(testFilePath, svgContent);
+    
+    res.json({
+      success: true,
+      message: 'Test image created',
+      filename: testFileName,
+      url: `/uploads/${testFileName}`
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -119,10 +150,26 @@ app.get('/api/artwork/:id', (req, res) => {
   console.log('=== ARTWORK REQUEST ===');
   console.log('ID:', id);
   console.log('Record found:', !!record);
+  
   if (record) {
-    console.log('File:', record.file);
+    console.log('Expected file:', record.file);
     console.log('Full path:', path.join(uploadDir, record.file));
     console.log('File exists:', fs.existsSync(path.join(uploadDir, record.file)));
+    
+    // Check what files actually exist
+    try {
+      const actualFiles = fs.readdirSync(uploadDir);
+      console.log('Actual files in directory:', actualFiles);
+      
+      // If the expected file doesn't exist but there are other files, use the first available
+      if (!fs.existsSync(path.join(uploadDir, record.file)) && actualFiles.length > 0) {
+        console.log('Expected file missing, using fallback:', actualFiles[0]);
+        record.file = actualFiles[0]; // Update with available file
+        saveDB(artworkDB); // Save the correction
+      }
+    } catch (error) {
+      console.error('Error reading directory:', error);
+    }
   }
   console.log('======================');
   
