@@ -1,0 +1,36 @@
+# Enable URL rewriting
+RewriteEngine On
+
+# Security headers
+Header always set X-Content-Type-Options nosniff
+Header always set X-Frame-Options DENY
+Header always set X-XSS-Protection "1; mode=block"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+# Handle file uploads
+<Files "*.php">
+    Order Deny,Allow
+    Deny from all
+</Files>
+
+# Allow access to specific file types
+<FilesMatch "\.(css|js|png|jpg|jpeg|gif|svg|ico|pdf)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# Prevent access to sensitive files
+<Files ".env">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "package.json">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "package-lock.json">
+    Order allow,deny
+    Deny from all
+</Files> 

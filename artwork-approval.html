@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Artwork Approval</title>
+  <link rel="icon" type="image/svg+xml" href="img/PBJA_logo.svg">
+  <link rel="stylesheet" href="artwork-approval.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <img src="img/PBJA_logo.svg" alt="PBJA Logo" class="logo">
+      <h1>Artwork Approval</h1>
+      <p class="subtitle">Please review and approve or request changes to your artwork below.</p>
+      <div class="profile-switcher">
+        <button class="profile-btn active" data-profile="admin">Admin</button>
+        <button class="profile-btn" data-profile="client">Client</button>
+      </div>
+    </header>
+    <!-- Admin Section -->
+    <div id="admin-section">
+      <section class="send-to-client-section">
+        <div class="send-to-client-fields">
+          <input type="email" id="client-email-admin" class="client-email" placeholder="Enter client's email">
+          <button id="send-to-client-btn" class="send-to-client-btn">Send Artwork to Client</button>
+        </div>
+      </section>
+      <section class="artwork-upload-section">
+        <div class="file-upload-wrapper">
+          <label class="custom-file-upload" for="artwork-upload">
+            <input type="file" id="artwork-upload" accept="image/*,application/pdf" title="Choose artwork file to upload">
+            <span id="custom-file-label">Choose Artwork File</span>
+          </label>
+        </div>
+      </section>
+    </div>
+    <!-- Client Section (shared artwork preview) -->
+    <section class="artwork-preview-section">
+      <div id="artwork-preview" class="artwork-preview"></div>
+    </section>
+    <!-- Client Approval Section -->
+    <div id="client-section">
+      <section class="approval-section">
+        <button id="approve-btn" class="approve-btn">Approve Artwork</button>
+        <button id="amend-btn" class="amend-btn">Amend Artwork</button>
+        <textarea id="amend-text" class="amend-text" placeholder="Please describe the changes you would like..." style="display:none;"></textarea>
+      </section>
+      <section class="submit-section">
+        <input type="email" id="client-email" class="client-email" placeholder="Your Email (for confirmation)" required>
+        <button id="submit-btn" class="submit-btn">Send Response</button>
+        <div id="form-message" class="form-message"></div>
+      </section>
+    </div>
+  </div>
+  <script src="artwork-approval.js"></script>
+</body>
+</html> 

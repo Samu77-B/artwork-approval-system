@@ -1,0 +1,21 @@
+# Production Environment Variables for Hostinger
+# Copy this content to a .env file and fill in your actual values
+
+# Email Configuration (Gmail recommended)
+EMAIL_USER=your-email@paperboyja.com
+EMAIL_PASS=your-gmail-app-password
+
+# Application Settings
+BASE_URL=https://yourdomain.com
+NODE_ENV=production
+PORT=3001
+
+# Security (optional)
+SESSION_SECRET=your-super-secret-session-key
+JWT_SECRET=your-jwt-secret-key
+
+# Database (for future use)
+# DB_HOST=localhost
+# DB_USER=your_db_user
+# DB_PASS=your_db_password
+# DB_NAME=artwork_approval
