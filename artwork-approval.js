@@ -285,18 +285,39 @@ amendBtn.addEventListener('click', function() {
 submitBtn.addEventListener('click', async function() {
   formMessage.textContent = '';
   const email = clientEmail.value.trim();
+  
+  // Validation
   if (!email) {
-    formMessage.textContent = 'Please enter your email.';
+    formMessage.textContent = 'Please enter your email address.';
     formMessage.style.color = '#e74c3c';
+    clientEmail.focus();
     return;
   }
+  
+  // Basic email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    formMessage.textContent = 'Please enter a valid email address.';
+    formMessage.style.color = '#e74c3c';
+    clientEmail.focus();
+    return;
+  }
+  
   if (!approvalStatus) {
-    formMessage.textContent = 'Please select Approve or Amend.';
+    formMessage.textContent = 'Please select either "Approve Artwork" or "Amend Artwork".';
     formMessage.style.color = '#e74c3c';
     return;
   }
   
-  // Get review ID from URL if available
+  // Check for amend notes
+  if (approvalStatus === 'amend' && !amendText.value.trim()) {
+    formMessage.textContent = 'Please provide details about the changes you would like.';
+    formMessage.style.color = '#e74c3c';
+    amendText.focus();
+    return;
+  }
+  
+  // Get review ID from URL
   const urlParams = new URLSearchParams(window.location.search);
   const reviewId = urlParams.get('id');
   
@@ -306,7 +327,14 @@ submitBtn.addEventListener('click', async function() {
     return;
   }
   
+  // Show loading state
+  const originalText = submitBtn.textContent;
+  submitBtn.textContent = 'Sending Response...';
+  submitBtn.disabled = true;
+  
   try {
+    console.log('Submitting response:', { action: approvalStatus, email, reviewId });
+    
     const response = await fetch(`/api/review/${reviewId}`, {
       method: 'POST',
       headers: {
@@ -314,21 +342,60 @@ submitBtn.addEventListener('click', async function() {
       },
       body: JSON.stringify({
         action: approvalStatus,
-        notes: amendText.value,
+        notes: amendText.value.trim(),
         clientEmail: email
       })
     });
     
+    if (!response.ok) {
+      throw new Error(`Server error: ${response.status} - ${response.statusText}`);
+    }
+    
     const result = await response.json();
+    console.log('Response result:', result);
+    
     if (result.success) {
-      formMessage.textContent = 'Thank you! Your response has been submitted successfully.';
-      formMessage.style.color = '#27ae60';
+      const statusIcon = approvalStatus === 'approved' ? '✅' : '🔄';
+      const statusText = approvalStatus === 'approved' ? 'APPROVED' : 'AMENDMENT REQUESTED';
+      
+      formMessage.innerHTML = `
+        <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 6px; text-align: center;">
+          <h4 style="margin: 0 0 10px 0;">${statusIcon} Response Submitted Successfully!</h4>
+          <p style="margin: 0;">Your ${statusText} response has been sent to PBJA.<br>
+          You should receive a confirmation shortly.</p>
+        </div>
+      `;
+      
+      // Disable form after successful submission
+      approveBtn.disabled = true;
+      amendBtn.disabled = true;
+      amendText.disabled = true;
+      clientEmail.disabled = true;
+      submitBtn.style.display = 'none';
+      
     } else {
-      formMessage.textContent = 'Error: ' + result.error;
+      formMessage.textContent = '❌ Server Error: ' + (result.error || 'Unknown error occurred');
       formMessage.style.color = '#e74c3c';
     }
   } catch (error) {
-    formMessage.textContent = 'Error submitting response: ' + error.message;
+    console.error('Submission error:', error);
+    
+    let errorMessage = '❌ Submission Failed: ';
+    if (error.message.includes('Failed to fetch')) {
+      errorMessage += 'Cannot connect to server. Please check your internet connection and try again.';
+    } else if (error.message.includes('NetworkError')) {
+      errorMessage += 'Network connection problem. Please try again.';
+    } else {
+      errorMessage += error.message;
+    }
+    
+    formMessage.textContent = errorMessage;
     formMessage.style.color = '#e74c3c';
+  } finally {
+    // Reset button if still enabled
+    if (!submitBtn.disabled) {
+      submitBtn.textContent = originalText;
+    }
+    submitBtn.disabled = false;
   }
 }); 

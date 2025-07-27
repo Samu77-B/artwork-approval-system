@@ -119,6 +119,7 @@ app.post('/api/upload', upload.single('artwork'), (req, res) => {
   const id = uuidv4();
   artworkDB[id] = {
     file: req.file.filename,
+    originalName: req.file.originalname, // Store original filename
     clientEmail,
     status: 'pending',
     notes: ''
@@ -277,18 +278,33 @@ function sendClientEmail(clientEmail, id, filename) {
 }
 
 function sendAdminEmail(action, notes, record, clientEmail) {
+  // Use original filename if available, otherwise use current filename
+  let artworkName = record.originalName || record.file;
   
-  // For development, just log the email
+  // If still using UUID filename, create a clean name
+  if (!record.originalName) {
+    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+    if (uuidPattern.test(artworkName)) {
+      const extension = path.extname(artworkName);
+      artworkName = `Artwork${extension}`;
+    }
+  }
+  
+  // Create subject with status and artwork name
+  const status = action === 'approved' ? 'APPROVED' : 'AMENDMENT REQUESTED';
+  const subject = `Artwork Approval Response - PBJA - ${artworkName} - ${status}`;
+  
+  // For development, log the email details
   console.log('=== EMAIL TO ADMIN ===');
-  console.log('To: contact@paperboyja.com');
-  console.log('Subject: Artwork Approval Response');
+  console.log('To: info@paperboyja.com');
+  console.log('Subject:', subject);
   console.log('Client:', clientEmail || record.clientEmail);
   console.log('Status:', action);
   if (notes) console.log('Notes:', notes);
   console.log('Artwork:', `${BASE_URL}/uploads/${record.file}`);
   console.log('========================');
   
-  // Try to send actual email, but don't fail if it doesn't work
+  // Try to send actual email
   try {
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
       console.log('Email credentials not configured, skipping admin email');
@@ -305,18 +321,59 @@ function sendAdminEmail(action, notes, record, clientEmail) {
       }
     });
     
+    // Create status-specific content
+    const statusColor = action === 'approved' ? '#27ae60' : '#f39c12';
+    const statusIcon = action === 'approved' ? '✅' : '🔄';
+    const statusMessage = action === 'approved' ? 
+      'The client has APPROVED the artwork and it\'s ready for production!' :
+      'The client has requested AMENDMENTS to the artwork.';
+    
     return transporter.sendMail({
       from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_USER, // Send admin notifications to yourself
-      subject: 'Artwork Approval Response',
+      to: 'info@paperboyja.com',
+      subject: subject,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <img src="${BASE_URL}/img/PBJA_logo.svg" alt="PBJA Logo" style="width: 120px; margin-bottom: 20px;">
-          <h2>Artwork Approval Response</h2>
-          <p><strong>Client:</strong> ${clientEmail || record.clientEmail}</p>
-          <p><strong>Status:</strong> ${action}</p>
-          ${notes ? `<p><strong>Notes:</strong> ${notes}</p>` : ''}
-          <p><strong>Artwork:</strong> <a href="${BASE_URL}/uploads/${record.file}">View Artwork</a></p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+          <div style="background: #f8f9fa; padding: 20px; text-align: center;">
+            <img src="${BASE_URL}/img/PBJA_logo.svg" alt="PBJA Logo" style="width: 120px; margin-bottom: 10px;">
+            <h2 style="margin: 0; color: #333;">Artwork Approval Response</h2>
+          </div>
+          
+          <div style="padding: 30px;">
+            <div style="background: ${statusColor}; color: white; padding: 15px; border-radius: 6px; text-align: center; margin-bottom: 20px;">
+              <h3 style="margin: 0; font-size: 18px;">${statusIcon} ${status}</h3>
+            </div>
+            
+            <p style="font-size: 16px; color: #666; margin-bottom: 25px;">${statusMessage}</p>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
+              <h4 style="margin-top: 0; color: #333;">Project Details:</h4>
+              <p style="margin: 8px 0;"><strong>Client Email:</strong> ${clientEmail || record.clientEmail}</p>
+              <p style="margin: 8px 0;"><strong>Artwork:</strong> ${artworkName}</p>
+              <p style="margin: 8px 0;"><strong>Status:</strong> ${action.toUpperCase()}</p>
+              ${notes ? `
+                <div style="margin-top: 15px;">
+                  <strong>Client Notes:</strong>
+                  <div style="background: white; padding: 12px; border-left: 4px solid ${statusColor}; margin-top: 8px; border-radius: 0 4px 4px 0;">
+                    ${notes.replace(/\n/g, '<br>')}
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+            
+            <div style="text-align: center;">
+              <a href="${BASE_URL}/uploads/${record.file}" 
+                 style="background: #0074d9; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 10px;">
+                📎 View Artwork File
+              </a>
+            </div>
+            
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            
+            <p style="font-size: 14px; color: #666; text-align: center; margin: 0;">
+              This is an automated notification from the PBJA Artwork Approval System
+            </p>
+          </div>
         </div>
       `
     });
