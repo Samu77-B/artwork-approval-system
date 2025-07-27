@@ -12,31 +12,148 @@ body {
   background: #fff;
   border-radius: 0;
   box-shadow: none;
-  padding: 32px 0 0 0;
+  padding: 0;
+  min-height: 100vh;
 }
-header {
-  text-align: center;
+/* Header Layout */
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 32px;
   margin-bottom: 32px;
+  background: #fff;
+  border-bottom: 1px solid #e9ecef;
 }
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
 .logo {
-  width: 120px;
-  margin-bottom: 12px;
+  width: 80px;
+  height: auto;
+  flex-shrink: 0;
 }
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+}
+
 h1 {
-  font-size: 2rem;
-  margin: 0 0 8px 0;
+  font-size: 1.75rem;
+  margin: 0;
   font-weight: 600;
+  color: #2c3e50;
 }
+
 .subtitle {
-  color: #666;
-  font-size: 1.1rem;
-  margin-bottom: 0;
+  color: #6c757d;
+  font-size: 0.95rem;
+  margin: 4px 0 0 0;
+  font-weight: 400;
 }
+
+.admin-indicator {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+}
+
 .profile-switcher {
   display: flex;
   justify-content: center;
   gap: 8px;
   margin-bottom: 18px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .main-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px 16px;
+  }
+  
+  .header-left {
+    width: 100%;
+    gap: 16px;
+  }
+  
+  .header-right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  
+  .logo {
+    width: 60px;
+  }
+  
+  h1 {
+    font-size: 1.5rem;
+  }
+  
+  .subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .admin-indicator {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-header {
+    padding: 16px 12px;
+  }
+  
+  .header-left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .header-text {
+    width: 100%;
+  }
+  
+  h1 {
+    font-size: 1.4rem;
+  }
+  
+  .subtitle {
+    font-size: 0.85rem;
+  }
+}
+
+/* Content Sections Spacing */
+#admin-section, 
+#client-section,
+.artwork-preview-section {
+  padding: 0 32px 32px 32px;
+}
+
+@media (max-width: 768px) {
+  #admin-section, 
+  #client-section,
+  .artwork-preview-section {
+    padding: 0 16px 24px 16px;
+  }
 }
 .profile-btn {
   padding: 8px 20px;

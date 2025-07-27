@@ -25,9 +25,19 @@ async function loadArtworkFromReview() {
   if (reviewId) {
     console.log('Review ID found:', reviewId);
     
-    // Hide profile switcher buttons for clients
+    // Update header for client mode
+    const adminIndicator = document.querySelector('.admin-indicator');
     const profileSwitcher = document.querySelector('.profile-switcher');
+    const subtitle = document.querySelector('.subtitle');
+    
+    // Hide admin indicator and profile switcher for clients
+    if (adminIndicator) adminIndicator.style.display = 'none';
     if (profileSwitcher) profileSwitcher.style.display = 'none';
+    
+    // Update subtitle for client view
+    if (subtitle) {
+      subtitle.textContent = 'Please review and approve or request changes to your artwork below.';
+    }
     
     // Switch to client view immediately
     currentProfile = 'client';

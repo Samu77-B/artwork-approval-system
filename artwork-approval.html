@@ -9,13 +9,20 @@
 </head>
 <body>
   <div class="container">
-    <header>
-      <img src="img/PBJA_logo.svg" alt="PBJA Logo" class="logo">
-      <h1>Artwork Approval</h1>
-      <p class="subtitle">Please review and approve or request changes to your artwork below.</p>
-      <div class="profile-switcher">
-        <button class="profile-btn active" data-profile="admin">Admin</button>
-        <button class="profile-btn" data-profile="client">Client</button>
+    <header class="main-header">
+      <div class="header-left">
+        <img src="img/PBJA_logo.svg" alt="PBJA Logo" class="logo">
+        <div class="header-text">
+          <h1>Artwork Approval</h1>
+          <p class="subtitle">Please review and approve or request changes to your artwork below.</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div id="admin-indicator" class="admin-indicator">Admin</div>
+        <div class="profile-switcher" style="display: none;">
+          <button class="profile-btn active" data-profile="admin">Admin</button>
+          <button class="profile-btn" data-profile="client">Client</button>
+        </div>
       </div>
     </header>
     <!-- Admin Section -->
