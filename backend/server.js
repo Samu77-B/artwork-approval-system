@@ -57,6 +57,15 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'artwork-approval.html'));
 });
 
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    server: 'Artwork Approval System'
+  });
+});
+
 // Test endpoint to check uploads directory
 app.get('/api/test-uploads', (req, res) => {
   try {

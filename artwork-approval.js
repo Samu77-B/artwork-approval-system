@@ -147,20 +147,58 @@ sendToClientBtn.addEventListener('click', async function() {
   formData.append('artwork', file);
   formData.append('clientEmail', email);
   
+  // Show loading state
+  const originalText = sendToClientBtn.textContent;
+  sendToClientBtn.textContent = 'Sending...';
+  sendToClientBtn.disabled = true;
+
   try {
+    console.log('Uploading artwork...');
     const response = await fetch('/api/upload', {
       method: 'POST',
       body: formData
     });
     
+    console.log('Response status:', response.status);
+    console.log('Response OK:', response.ok);
+    
+    if (!response.ok) {
+      throw new Error(`Server error: ${response.status} - ${response.statusText}`);
+    }
+    
     const result = await response.json();
+    console.log('Upload result:', result);
+    
     if (result.success) {
-      alert(`Artwork sent to ${email}! Review URL: ${result.reviewUrl}`);
+      alert(`✅ Artwork sent successfully to ${email}!\n\nReview URL: ${result.reviewUrl}`);
+      // Clear form
+      clientEmailAdmin.value = '';
+      artworkUpload.value = '';
+      artworkPreview.innerHTML = '';
+      if (customFileLabel) customFileLabel.textContent = 'Choose Artwork File';
     } else {
-      alert('Error: ' + result.error);
+      alert('❌ Server Error: ' + (result.error || 'Unknown error occurred'));
     }
   } catch (error) {
-    alert('Error sending artwork: ' + error.message);
+    console.error('Upload error:', error);
+    
+    // More specific error messages
+    let errorMessage = '❌ Upload Failed: ';
+    if (error.message.includes('Failed to fetch')) {
+      errorMessage += 'Cannot connect to server. The server may be starting up (this can take 30-60 seconds on the first request). Please wait a moment and try again.';
+    } else if (error.message.includes('NetworkError')) {
+      errorMessage += 'Network connection problem. Please check your internet connection and try again.';
+    } else if (error.message.includes('Server error: 5')) {
+      errorMessage += 'Server error occurred. Please try again in a few moments.';
+    } else {
+      errorMessage += error.message;
+    }
+    
+    alert(errorMessage);
+  } finally {
+    // Reset button
+    sendToClientBtn.textContent = originalText;
+    sendToClientBtn.disabled = false;
   }
 });
 
