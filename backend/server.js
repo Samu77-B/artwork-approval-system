@@ -24,8 +24,30 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// In-memory DB for demo (replace with real DB for production)
-const artworkDB = {};
+// Simple file-based storage (better than in-memory for deployments)
+const dbFile = path.join(__dirname, 'artwork-db.json');
+
+function loadDB() {
+  try {
+    if (fs.existsSync(dbFile)) {
+      return JSON.parse(fs.readFileSync(dbFile, 'utf8'));
+    }
+  } catch (error) {
+    console.error('Error loading DB:', error);
+  }
+  return {};
+}
+
+function saveDB(data) {
+  try {
+    fs.writeFileSync(dbFile, JSON.stringify(data, null, 2));
+  } catch (error) {
+    console.error('Error saving DB:', error);
+  }
+}
+
+// Load existing data or start with empty DB
+const artworkDB = loadDB();
 
 app.use(express.json());
 app.use('/uploads', express.static(uploadDir));
@@ -33,6 +55,21 @@ app.use('/uploads', express.static(uploadDir));
 // Serve the main artwork approval page at root
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'artwork-approval.html'));
+});
+
+// Test endpoint to check uploads directory
+app.get('/api/test-uploads', (req, res) => {
+  try {
+    const files = fs.readdirSync(uploadDir);
+    res.json({
+      uploadDir,
+      exists: fs.existsSync(uploadDir),
+      files: files,
+      dbRecords: Object.keys(artworkDB).length
+    });
+  } catch (error) {
+    res.json({ error: error.message, uploadDir });
+  }
 });
 
 // Admin uploads artwork and sends to client
@@ -46,6 +83,7 @@ app.post('/api/upload', upload.single('artwork'), (req, res) => {
     status: 'pending',
     notes: ''
   };
+  saveDB(artworkDB); // Save to file
   // Send email to client with review link
   sendClientEmail(clientEmail, id, req.file.filename)
     .then(() => res.json({ success: true, reviewUrl: `/review/${id}` }))
@@ -69,6 +107,16 @@ app.get('/review/:id', (req, res) => {
 app.get('/api/artwork/:id', (req, res) => {
   const { id } = req.params;
   const record = artworkDB[id];
+  console.log('=== ARTWORK REQUEST ===');
+  console.log('ID:', id);
+  console.log('Record found:', !!record);
+  if (record) {
+    console.log('File:', record.file);
+    console.log('Full path:', path.join(uploadDir, record.file));
+    console.log('File exists:', fs.existsSync(path.join(uploadDir, record.file)));
+  }
+  console.log('======================');
+  
   if (!record) return res.status(404).json({ error: 'Not found' });
   res.json({
     artworkUrl: `/uploads/${record.file}`,
@@ -85,6 +133,7 @@ app.post('/api/review/:id', (req, res) => {
   if (!record) return res.status(404).json({ error: 'Not found' });
   record.status = action;
   record.notes = notes || '';
+  saveDB(artworkDB); // Save to file
   // Send email to admin
   sendAdminEmail(action, notes, record, clientEmail)
     .then(() => res.json({ success: true }))
