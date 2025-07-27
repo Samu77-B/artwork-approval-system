@@ -112,6 +112,38 @@ app.get('/api/create-test-image', (req, res) => {
   }
 });
 
+// Test endpoint to simulate email subject generation
+app.get('/api/test-email-subject/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const record = artworkDB[id];
+    
+    if (!record) {
+      return res.status(404).json({ error: 'Record not found' });
+    }
+    
+    let artworkName = record?.originalName || record.file || 'Artwork';
+    
+    // Clean up the artwork name if needed
+    if (artworkName === record.file && record.file && record.file.includes('-')) {
+      const extension = path.extname(record.file);
+      artworkName = `Artwork${extension}`;
+    }
+    
+    const clientSubject = `Artwork Approval Request - PBJA - ${artworkName}`;
+    const adminSubject = `Artwork Approval Response - PBJA - ${artworkName} - APPROVED`;
+    
+    res.json({
+      record: record,
+      artworkName: artworkName,
+      clientEmailSubject: clientSubject,
+      adminEmailSubject: adminSubject
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Admin uploads artwork and sends to client
 app.post('/api/upload', upload.single('artwork'), (req, res) => {
   const { clientEmail } = req.body;
@@ -125,8 +157,8 @@ app.post('/api/upload', upload.single('artwork'), (req, res) => {
     notes: ''
   };
   saveDB(artworkDB); // Save to file
-  // Send email to client with review link
-  sendClientEmail(clientEmail, id, req.file.filename)
+  // Send email to client with review link (pass original filename)
+  sendClientEmail(clientEmail, id, req.file.originalname)
     .then(() => res.json({ success: true, reviewUrl: `/review/${id}` }))
     .catch(err => {
       console.error('Email error:', err);
@@ -203,16 +235,28 @@ function sendClientEmail(clientEmail, id, filename) {
   
   // Get the artwork record to access original filename
   const record = artworkDB[id];
-  const artworkName = record?.originalName || filename || 'Artwork';
+  let artworkName = record?.originalName || filename || 'Artwork';
+  
+  // Clean up the artwork name if needed
+  if (artworkName === filename && filename.includes('-')) {
+    // If using UUID filename as fallback, create a cleaner name
+    const extension = path.extname(filename);
+    artworkName = `Artwork${extension}`;
+  }
   
   // Create subject with artwork name
   const subject = `Artwork Approval Request - PBJA - ${artworkName}`;
   
-  // For development, log the email
+  // For development, log the email details
   console.log('=== EMAIL TO CLIENT ===');
   console.log('To:', clientEmail);
   console.log('From: info@paperboyja.com');
   console.log('Subject:', subject);
+  console.log('Artwork ID:', id);
+  console.log('Record found:', !!record);
+  console.log('Original filename:', record?.originalName);
+  console.log('Passed filename:', filename);
+  console.log('Final artwork name:', artworkName);
   console.log('Review URL:', reviewUrl);
   console.log('========================');
   
