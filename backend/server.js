@@ -30,6 +30,11 @@ const artworkDB = {};
 app.use(express.json());
 app.use('/uploads', express.static(uploadDir));
 
+// Serve the main artwork approval page at root
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'artwork-approval.html'));
+});
+
 // Admin uploads artwork and sends to client
 app.post('/api/upload', upload.single('artwork'), (req, res) => {
   const { clientEmail } = req.body;
