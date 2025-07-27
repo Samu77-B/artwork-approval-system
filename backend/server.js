@@ -199,17 +199,24 @@ app.post('/api/review/:id', (req, res) => {
 
 // Email sending functions (placeholders)
 function sendClientEmail(clientEmail, id, filename) {
-  // TODO: Replace with your domain and email settings
   const reviewUrl = `${BASE_URL}/review/${id}`;
   
-  // For development, just log the email
+  // Get the artwork record to access original filename
+  const record = artworkDB[id];
+  const artworkName = record?.originalName || filename || 'Artwork';
+  
+  // Create subject with artwork name
+  const subject = `Artwork Approval Request - PBJA - ${artworkName}`;
+  
+  // For development, log the email
   console.log('=== EMAIL TO CLIENT ===');
   console.log('To:', clientEmail);
-  console.log('Subject: Artwork Approval Request - PBJA');
+  console.log('From: info@paperboyja.com');
+  console.log('Subject:', subject);
   console.log('Review URL:', reviewUrl);
   console.log('========================');
   
-  // Try to send actual email, but don't fail if it doesn't work
+  // Try to send actual email
   try {
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
       console.log('Email credentials not configured, skipping email send');
@@ -227,18 +234,57 @@ function sendClientEmail(clientEmail, id, filename) {
     });
     
     return transporter.sendMail({
-      from: process.env.EMAIL_USER,
+      from: 'PBJA Artwork Team <info@paperboyja.com>',
+      replyTo: 'info@paperboyja.com',
       to: clientEmail,
-      subject: 'Artwork Approval Request - PBJA',
+      subject: subject,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <img src="${BASE_URL}/img/PBJA_logo.svg" alt="PBJA Logo" style="width: 120px; margin-bottom: 20px;">
-          <h2>Artwork Approval Request</h2>
-          <p>Hello,</p>
-          <p>We have prepared your artwork for review. Please click the link below to view and approve or request changes:</p>
-          <a href="${reviewUrl}" style="background: #0074d9; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0;">Review Artwork</a>
-          <p>If you have any questions, please don't hesitate to contact us.</p>
-          <p>Best regards,<br>The PBJA Team</p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+          <div style="background: #f8f9fa; padding: 20px; text-align: center;">
+            <img src="${BASE_URL}/img/PBJA_logo.svg" alt="PBJA Logo" style="width: 120px; margin-bottom: 10px;">
+            <h2 style="margin: 0; color: #333;">Artwork Ready for Your Review</h2>
+          </div>
+          
+          <div style="padding: 30px;">
+            <p style="font-size: 16px; color: #333; margin-bottom: 20px;">Hello,</p>
+            
+            <p style="font-size: 16px; color: #666; margin-bottom: 25px;">
+              Your artwork <strong>"${artworkName}"</strong> has been prepared and is ready for your review and approval.
+            </p>
+            
+            <div style="background: #e8f4fd; border-left: 4px solid #0074d9; padding: 20px; margin: 25px 0; border-radius: 0 6px 6px 0;">
+              <h4 style="margin: 0 0 10px 0; color: #0074d9;">📋 What You Need to Do:</h4>
+              <ul style="margin: 0; padding-left: 20px; color: #666;">
+                <li>Click the review button below</li>
+                <li>View your artwork</li>
+                <li>Choose "Approve" or "Request Changes"</li>
+                <li>Submit your response</li>
+              </ul>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${reviewUrl}" 
+                 style="background: #0074d9; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-size: 16px; font-weight: 500;">
+                🎨 Review Artwork Now
+              </a>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin: 25px 0;">
+              <p style="margin: 0; font-size: 14px; color: #666;">
+                <strong>Need Help?</strong> If you have any questions or need assistance, please don't hesitate to contact us at 
+                <a href="mailto:info@paperboyja.com" style="color: #0074d9;">info@paperboyja.com</a>
+              </p>
+            </div>
+            
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            
+            <p style="font-size: 16px; color: #333; margin-bottom: 5px;">Best regards,</p>
+            <p style="font-size: 16px; color: #333; margin: 0;"><strong>The PBJA Team</strong></p>
+            
+            <p style="font-size: 12px; color: #999; text-align: center; margin-top: 30px;">
+              This email was sent from the PBJA Artwork Approval System
+            </p>
+          </div>
         </div>
       `
     });
