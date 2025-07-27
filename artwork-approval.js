@@ -39,23 +39,73 @@ async function loadArtworkFromReview() {
     if (clientSection) clientSection.style.display = 'block';
     
     try {
+      // Show loading state
+      if (artworkPreview) {
+        artworkPreview.innerHTML = '<div style="text-align: center; color: #666; font-size: 1.1rem;">Loading artwork...</div>';
+      }
+      
       const response = await fetch(`/api/artwork/${reviewId}`);
       const data = await response.json();
       
       if (data.artworkUrl) {
+        console.log('Loading artwork from:', data.artworkUrl);
+        
         // Display artwork
         const img = document.createElement('img');
         img.src = data.artworkUrl;
-        img.style.objectFit = 'contain';
-        img.style.maxWidth = '100%';
-        img.style.maxHeight = '400px';
+        img.alt = 'Artwork for approval';
+        
+        // Add error handling
+        img.onerror = function() {
+          console.error('Failed to load image:', data.artworkUrl);
+          if (artworkPreview) {
+            artworkPreview.innerHTML = `
+              <div style="text-align: center; color: #e74c3c; font-size: 1.1rem;">
+                <p>Unable to load artwork</p>
+                <p style="font-size: 0.9rem; margin-top: 10px;">
+                  <a href="${data.artworkUrl}" target="_blank" style="color: #0074d9;">Click here to view artwork directly</a>
+                </p>
+              </div>`;
+          }
+        };
+        
+        // Add load success handling
+        img.onload = function() {
+          console.log('Image loaded successfully');
+        };
+        
+        // Set a timeout for slow loading images
+        setTimeout(() => {
+          if (!img.complete && artworkPreview && artworkPreview.contains(img)) {
+            console.warn('Image taking too long to load, showing fallback');
+            artworkPreview.innerHTML = `
+              <div style="text-align: center; color: #f39c12; font-size: 1.1rem;">
+                <p>Image is taking longer than expected to load</p>
+                <p style="font-size: 0.9rem; margin-top: 10px;">
+                  <a href="${data.artworkUrl}" target="_blank" style="color: #0074d9;">Click here to view artwork directly</a>
+                </p>
+              </div>`;
+          }
+        }, 10000); // 10 second timeout
+        
         if (artworkPreview) {
-        artworkPreview.innerHTML = '';
-        artworkPreview.appendChild(img);
+          artworkPreview.innerHTML = '';
+          artworkPreview.appendChild(img);
+        }
+      } else {
+        if (artworkPreview) {
+          artworkPreview.innerHTML = '<div style="text-align: center; color: #e74c3c; font-size: 1.1rem;">No artwork found</div>';
         }
       }
     } catch (error) {
       console.error('Error loading artwork:', error);
+      if (artworkPreview) {
+        artworkPreview.innerHTML = `
+          <div style="text-align: center; color: #e74c3c; font-size: 1.1rem;">
+            <p>Error loading artwork</p>
+            <p style="font-size: 0.9rem; margin-top: 10px;">Please refresh the page or contact support</p>
+          </div>`;
+      }
     }
   }
 }
