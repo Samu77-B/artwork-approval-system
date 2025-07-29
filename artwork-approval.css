@@ -17,9 +17,7 @@ body {
 }
 /* Header Layout */
 .main-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  position: relative;
   padding: 24px 32px;
   margin-bottom: 32px;
   background: #fff;
@@ -28,11 +26,14 @@ body {
 
 .header-left {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 20px;
 }
 
 .header-right {
+  position: absolute;
+  top: 24px;
+  right: 32px;
   display: flex;
   align-items: center;
 }
@@ -41,11 +42,13 @@ body {
   width: 80px;
   height: auto;
   flex-shrink: 0;
+  margin-top: 0;
 }
 
 .header-text {
   display: flex;
   flex-direction: column;
+  margin-top: 4px;
 }
 
 h1 {
@@ -85,10 +88,8 @@ h1 {
 /* Responsive Design */
 @media (max-width: 768px) {
   .main-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
     padding: 20px 16px;
+    padding-bottom: 70px; /* Extra space for admin indicator */
   }
   
   .header-left {
@@ -97,8 +98,8 @@ h1 {
   }
   
   .header-right {
-    width: 100%;
-    justify-content: flex-end;
+    top: 20px;
+    right: 16px;
   }
   
   .logo {
@@ -122,12 +123,18 @@ h1 {
 @media (max-width: 480px) {
   .main-header {
     padding: 16px 12px;
+    padding-bottom: 70px; /* Extra space for admin indicator */
   }
   
   .header-left {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
+  }
+  
+  .header-right {
+    top: 16px;
+    right: 12px;
   }
   
   .header-text {
