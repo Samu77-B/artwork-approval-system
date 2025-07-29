@@ -37,11 +37,13 @@ async function loadArtworkFromReview() {
     // Update subtitle for client view
     if (subtitle) {
       subtitle.innerHTML = 'Please see the attached draft for your perusal.<br>' +
-        'Kindly review and respond to this email with your approval/feedback.<br>' +
-        '1. Please proofread all text very carefully for any typographical errors.<br>' +
-        '2. We will not be responsible for typographical or design errors after approval of this Draft.<br>' +
-        '3. Kindly review and respond to this email with your approval/feedback at your soonest convenience.<br>' +
-        '4. An approved Draft establishes full responsibility by the sender.<br>' +
+        'Kindly review and respond to this email with your approval/feedback.<br><br>' +
+        '1. Please proofread all text very carefully for any typographical errors.<br><br>' +
+        '2. We will not be responsible for typographical or design errors<br>' +
+        '   after approval of this Draft.<br><br>' +
+        '3. Kindly review and respond to this email with your approval/feedback<br>' +
+        '   at your soonest convenience.<br><br>' +
+        '4. An approved Draft establishes full responsibility by the sender.<br><br>' +
         '5. Any changes thereafter will incur additional charges.';
     }
     
