@@ -265,7 +265,7 @@ h1 {
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 .instructions-section {
-  width: 220px;
+  width: 280px;
   max-width: 90vw;
   margin: 0 auto 20px auto;
 }
@@ -273,7 +273,7 @@ h1 {
 /* Desktop and Tablet - Wider instructions */
 @media (min-width: 768px) {
   .instructions-section {
-    width: 400px;
+    width: 460px;
     max-width: 80vw;
   }
   
@@ -303,12 +303,12 @@ h1 {
   
   /* Match approval section width to instructions */
   .approval-section {
-    width: 400px;
+    width: 460px;
     max-width: 80vw;
   }
   
   .submit-section {
-    width: 400px;
+    width: 460px;
     max-width: 80vw;
   }
   
@@ -372,7 +372,7 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 220px;
+  width: 280px;
   max-width: 90vw;
   margin: 0 auto 24px auto;
   gap: 12px;
@@ -511,7 +511,7 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 220px;
+  width: 280px;
   max-width: 90vw;
   margin: 0 auto;
   gap: 10px;
@@ -552,7 +552,7 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 220px;
+  width: 280px;
   max-width: 90vw;
   margin: 0 auto;
   gap: 8px;
@@ -576,7 +576,7 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 220px;
+  width: 280px;
   max-width: 90vw;
   margin: 0 auto;
 }
