@@ -296,8 +296,8 @@ function sendClientEmail(clientEmail, id, filename) {
           <div style="padding: 30px;">
             <div style="background: linear-gradient(135deg, #007bff, #0056b3); color: white; padding: 15px; border-radius: 6px; text-align: center; margin-bottom: 25px;">
               <p style="margin: 0; font-size: 14px; font-weight: 500;">
-                📧 This email is from <strong>PBJA (Paperboy Jamaica)</strong><br>
-                📞 Contact us: <a href="mailto:info@paperboyja.com" style="color: #cce7ff;">info@paperboyja.com</a>
+                📧 This email is from <strong>Paperboy JA</strong><br>
+                📞 Contact us on <a href="mailto:info@paperboyja.com" style="color: #cce7ff;">info@paperboyja.com</a> or call <a href="tel:+18769225483" style="color: #cce7ff;">+1 (876) 922-5483</a>
               </p>
             </div>
             
