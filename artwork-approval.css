@@ -500,6 +500,12 @@ h1 {
   resize: vertical;
   box-sizing: border-box;
   line-height: 1.5;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.amend-text::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
 }
 .submit-section {
   display: flex;
