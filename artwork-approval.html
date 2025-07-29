@@ -60,8 +60,19 @@
         </div>
       </section>
       <section class="approval-section">
-        <button id="approve-btn" class="approve-btn">Approve Artwork</button>
-        <button id="amend-btn" class="amend-btn">Amend Artwork</button>
+        <div class="checkbox-group">
+          <label class="checkbox-option" for="approve-radio">
+            <input type="radio" id="approve-radio" name="approval" value="approved">
+            <span class="checkbox-custom"></span>
+            <span class="checkbox-text">✅ Approve Artwork</span>
+          </label>
+          
+          <label class="checkbox-option" for="amend-radio">
+            <input type="radio" id="amend-radio" name="approval" value="amend">
+            <span class="checkbox-custom"></span>
+            <span class="checkbox-text">✏️ Amend Artwork</span>
+          </label>
+        </div>
         <textarea id="amend-text" class="amend-text" placeholder="Please describe the changes you would like..." style="display:none;"></textarea>
       </section>
       <section class="submit-section">

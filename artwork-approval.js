@@ -1,8 +1,8 @@
 // DOM Elements
 const artworkUpload = document.getElementById('artwork-upload');
 const artworkPreview = document.getElementById('artwork-preview');
-const approveBtn = document.getElementById('approve-btn');
-const amendBtn = document.getElementById('amend-btn');
+const approveRadio = document.getElementById('approve-radio');
+const amendRadio = document.getElementById('amend-radio');
 const amendText = document.getElementById('amend-text');
 const submitBtn = document.getElementById('submit-btn');
 const clientEmail = document.getElementById('client-email');
@@ -285,19 +285,19 @@ artworkUpload.addEventListener('change', function() {
   }
 });
 
-approveBtn.addEventListener('click', function() {
-  approvalStatus = 'approved';
-  approveBtn.classList.add('active');
-  amendBtn.classList.remove('active');
-  amendText.style.display = 'none';
+approveRadio.addEventListener('change', function() {
+  if (this.checked) {
+    approvalStatus = 'approved';
+    amendText.style.display = 'none';
+  }
 });
 
-amendBtn.addEventListener('click', function() {
-  approvalStatus = 'amend';
-  amendBtn.classList.add('active');
-  approveBtn.classList.remove('active');
-  amendText.style.display = 'block';
-  amendText.focus();
+amendRadio.addEventListener('change', function() {
+  if (this.checked) {
+    approvalStatus = 'amend';
+    amendText.style.display = 'block';
+    amendText.focus();
+  }
 });
 
 submitBtn.addEventListener('click', async function() {
@@ -385,8 +385,8 @@ submitBtn.addEventListener('click', async function() {
       `;
       
       // Disable form after successful submission
-      approveBtn.disabled = true;
-      amendBtn.disabled = true;
+      approveRadio.disabled = true;
+      amendRadio.disabled = true;
       amendText.disabled = true;
       clientEmail.disabled = true;
       submitBtn.style.display = 'none';

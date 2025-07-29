@@ -90,34 +90,68 @@
       height: 100px;
       resize: vertical;
     }
-    .button-group {
+    .checkbox-group {
       display: flex;
+      flex-direction: column;
       gap: 15px;
       margin-bottom: 20px;
     }
-    .approve-btn, .amend-btn {
-      flex: 1;
-      padding: 15px 30px;
-      border: none;
-      border-radius: 6px;
+    .checkbox-option {
+      display: flex;
+      align-items: center;
+      padding: 15px 20px;
+      border: 2px solid #e1e5e9;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: #fff;
+      position: relative;
+    }
+    .checkbox-option:hover {
+      border-color: #0074d9;
+      background: #f8f9fb;
+    }
+    .checkbox-option input[type="radio"] {
+      display: none;
+    }
+    .checkbox-custom {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #ddd;
+      border-radius: 4px;
+      display: inline-block;
+      position: relative;
+      margin-right: 15px;
+      background: #fff;
+      transition: all 0.3s ease;
+    }
+    .checkbox-option input[type="radio"]:checked + .checkbox-custom {
+      background: #27ae60;
+      border-color: #27ae60;
+    }
+    .checkbox-option input[type="radio"]:checked + .checkbox-custom::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-weight: bold;
+      font-size: 12px;
+    }
+    .checkbox-option[for="amend-radio"] input[type="radio"]:checked + .checkbox-custom {
+      background: #e74c3c;
+      border-color: #e74c3c;
+    }
+    .checkbox-text {
       font-size: 16px;
       font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
+      color: #333;
+      flex: 1;
     }
-    .approve-btn {
-      background: #27ae60;
-      color: white;
-    }
-    .approve-btn:hover {
-      background: #219a52;
-    }
-    .amend-btn {
-      background: #e74c3c;
-      color: white;
-    }
-    .amend-btn:hover {
-      background: #c0392b;
+    .checkbox-option input[type="radio"]:checked ~ .checkbox-text {
+      color: #2c3e50;
+      font-weight: 600;
     }
     .submit-btn {
       background: #0074d9;
@@ -152,8 +186,18 @@
         padding: 20px;
         margin: 10px;
       }
-      .button-group {
+      .checkbox-group {
         flex-direction: column;
+      }
+    }
+    @media (min-width: 601px) {
+      .checkbox-group {
+        flex-direction: row;
+        gap: 20px;
+      }
+      .checkbox-option {
+        flex: 1;
+        min-width: 200px;
       }
     }
   </style>
@@ -178,7 +222,7 @@
       <h2>Artwork Preview</h2>
       <!-- Replace this link with your Google Drive sharing link -->
       <a href="https://drive.google.com/file/d/YOUR_FILE_ID/view?usp=sharing" 
-         target="_blank" class="artwork-link">
+         target="_blank" rel="noopener" class="artwork-link">
         📎 View Artwork in Google Drive
       </a>
       <br>
@@ -201,15 +245,19 @@
 
         <div class="form-group">
           <label>Your Decision *</label>
-          <div class="button-group">
-            <button type="button" class="approve-btn" onclick="setDecision('approved')">
-              ✅ Approve Artwork
-            </button>
-            <button type="button" class="amend-btn" onclick="setDecision('amend')">
-              ✏️ Request Changes
-            </button>
+          <div class="checkbox-group">
+            <label class="checkbox-option" for="approve-radio">
+              <input type="radio" id="approve-radio" name="decision" value="approved" onchange="setDecision('approved')">
+              <span class="checkbox-custom"></span>
+              <span class="checkbox-text">✅ Approve Artwork</span>
+            </label>
+            
+            <label class="checkbox-option" for="amend-radio">
+              <input type="radio" id="amend-radio" name="decision" value="amend" onchange="setDecision('amend')">
+              <span class="checkbox-custom"></span>
+              <span class="checkbox-text">✏️ Request Changes</span>
+            </label>
           </div>
-          <input type="hidden" id="decision" name="decision" required>
         </div>
 
         <div class="form-group hidden" id="notes-group">
@@ -228,13 +276,6 @@
 
     function setDecision(decision) {
       currentDecision = decision;
-      document.getElementById('decision').value = decision;
-      
-      // Update button styles
-      document.querySelectorAll('.approve-btn, .amend-btn').forEach(btn => {
-        btn.style.opacity = '0.6';
-      });
-      event.target.style.opacity = '1';
       
       // Show/hide notes field
       const notesGroup = document.getElementById('notes-group');
@@ -249,7 +290,10 @@
 
     // Form submission handling
     document.querySelector('form').addEventListener('submit', function(e) {
-      if (!currentDecision) {
+      const approveRadio = document.getElementById('approve-radio');
+      const amendRadio = document.getElementById('amend-radio');
+      
+      if (!approveRadio.checked && !amendRadio.checked) {
         e.preventDefault();
         alert('Please select either "Approve Artwork" or "Request Changes"');
         return;
