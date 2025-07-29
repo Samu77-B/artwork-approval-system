@@ -36,7 +36,13 @@ async function loadArtworkFromReview() {
     
     // Update subtitle for client view
     if (subtitle) {
-      subtitle.textContent = 'Please review and approve or request changes to your artwork below.';
+      subtitle.innerHTML = 'Please see the attached draft for your perusal.<br>' +
+        'Kindly review and respond to this email with your approval/feedback.<br>' +
+        '1. Please proofread all text very carefully for any typographical errors.<br>' +
+        '2. We will not be responsible for typographical or design errors after approval of this Draft.<br>' +
+        '3. Kindly review and respond to this email with your approval/feedback at your soonest convenience.<br>' +
+        '4. An approved Draft establishes full responsibility by the sender.<br>' +
+        '5. Any changes thereafter will incur additional charges.';
     }
     
     // Switch to client view immediately
