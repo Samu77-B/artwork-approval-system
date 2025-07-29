@@ -270,6 +270,67 @@ h1 {
   margin: 0 auto 20px auto;
 }
 
+/* Desktop and Tablet - Wider instructions */
+@media (min-width: 768px) {
+  .instructions-section {
+    width: 400px;
+    max-width: 80vw;
+  }
+  
+  .instructions-box {
+    padding: 20px 24px;
+  }
+  
+  .instructions-box h3 {
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+  }
+  
+  .instruction-list {
+    margin-bottom: 16px;
+  }
+  
+  .instruction-list li {
+    font-size: 1rem;
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+  
+  .instructions-note {
+    font-size: 0.95rem;
+    padding-top: 12px;
+  }
+  
+  /* Match approval section width to instructions */
+  .approval-section {
+    width: 400px;
+    max-width: 80vw;
+  }
+  
+  .submit-section {
+    width: 400px;
+    max-width: 80vw;
+  }
+  
+  /* Make buttons side by side on larger screens */
+  .approval-section {
+    flex-direction: row;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  
+  .approve-btn, .amend-btn {
+    flex: 1;
+    min-width: 180px;
+  }
+  
+  /* Amend text area spans full width below buttons */
+  .amend-text {
+    width: 100%;
+    margin-top: 12px;
+  }
+}
+
 .instructions-box {
   background: #f8f9fa;
   border: 1px solid #e9ecef;
