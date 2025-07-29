@@ -491,14 +491,15 @@ h1 {
 }
 .amend-text {
   width: 100%;
-  min-height: 70px;
+  min-height: 120px;
   border-radius: 6px;
   border: 1.5px solid #bfc9d1;
-  padding: 10px;
+  padding: 15px;
   font-size: 1rem;
   margin-top: 6px;
   resize: vertical;
   box-sizing: border-box;
+  line-height: 1.5;
 }
 .submit-section {
   display: flex;
