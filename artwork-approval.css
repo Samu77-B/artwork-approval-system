@@ -694,6 +694,31 @@ h1 {
   }
 }
 
+/* Footer Styles */
+.footer {
+  text-align: center;
+  padding: 20px;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  margin-top: auto;
+}
+
+.footer p {
+  margin: 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 480px) {
+  .footer {
+    padding: 16px;
+  }
+  
+  .footer p {
+    font-size: 0.85rem;
+  }
+}
+
 /* Mobile Touch Optimizations */
 @media (max-width: 768px) {
   .artwork-preview {
