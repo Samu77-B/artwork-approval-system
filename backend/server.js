@@ -1,12 +1,15 @@
 const express = require('express');
 const multer = require('multer');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const fs = require('fs');
 
 // Load environment variables
 require('dotenv').config();
+
+// Initialize Resend
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -230,7 +233,7 @@ app.post('/api/review/:id', (req, res) => {
 });
 
 // Email sending functions (placeholders)
-function sendClientEmail(clientEmail, id, filename) {
+async function sendClientEmail(clientEmail, id, filename) {
   const reviewUrl = `${BASE_URL}/review/${id}`;
   
   // Get the artwork record to access original filename
@@ -260,32 +263,17 @@ function sendClientEmail(clientEmail, id, filename) {
   console.log('Review URL:', reviewUrl);
   console.log('========================');
   
-  // Try to send actual email
+  // Send email using Resend
   try {
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      console.log('Email credentials not configured, skipping email send');
+    if (!process.env.RESEND_API_KEY) {
+      console.log('Resend API key not configured, skipping email send');
       return Promise.resolve();
     }
     
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
-    
-    return transporter.sendMail({
-      from: '"PBJA Artwork Team" <info@paperboyja.com>',
-      replyTo: 'info@paperboyja.com',
+    return await resend.emails.send({
+      from: 'PBJA Artwork Team <info@paperboyja.com>',
       to: clientEmail,
       subject: subject,
-      headers: {
-        'X-Mailer': 'PBJA Artwork Approval System',
-        'Organization': 'Paperboy Jamaica'
-      },
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
           <div style="background: #f8f9fa; padding: 20px; text-align: center;">
@@ -378,7 +366,7 @@ function sendClientEmail(clientEmail, id, filename) {
   */
 }
 
-function sendAdminEmail(action, notes, record, clientEmail) {
+async function sendAdminEmail(action, notes, record, clientEmail) {
   // Use original filename if available, otherwise use current filename
   let artworkName = record.originalName || record.file;
   
@@ -405,22 +393,12 @@ function sendAdminEmail(action, notes, record, clientEmail) {
   console.log('Artwork:', `${BASE_URL}/uploads/${record.file}`);
   console.log('========================');
   
-  // Try to send actual email
+  // Send email using Resend
   try {
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      console.log('Email credentials not configured, skipping admin email');
+    if (!process.env.RESEND_API_KEY) {
+      console.log('Resend API key not configured, skipping admin email');
       return Promise.resolve();
     }
-    
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
     
     // Create status-specific content
     const statusColor = action === 'approved' ? '#27ae60' : '#f39c12';
@@ -429,15 +407,10 @@ function sendAdminEmail(action, notes, record, clientEmail) {
       'The client has APPROVED the artwork and it\'s ready for production!' :
       'The client has requested AMENDMENTS to the artwork.';
     
-    return transporter.sendMail({
-      from: '"PBJA Artwork Team" <info@paperboyja.com>',
-      replyTo: 'info@paperboyja.com',
+    return await resend.emails.send({
+      from: 'PBJA Artwork Team <info@paperboyja.com>',
       to: 'info@paperboyja.com',
       subject: subject,
-      headers: {
-        'X-Mailer': 'PBJA Artwork Approval System',
-        'Organization': 'Paperboy Jamaica'
-      },
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
           <div style="background: #f8f9fa; padding: 20px; text-align: center;">
