@@ -8,6 +8,12 @@ const fs = require('fs');
 // Load environment variables
 require('dotenv').config();
 
+// Debug environment variables
+console.log('Environment variables loaded:');
+console.log('RESEND_API_KEY:', process.env.RESEND_API_KEY ? 'Present' : 'Missing');
+console.log('BASE_URL:', process.env.BASE_URL);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+
 // Initialize Resend
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -271,7 +277,7 @@ async function sendClientEmail(clientEmail, id, filename) {
     }
     
     return await resend.emails.send({
-      from: 'PBJA Artwork Team <info@paperboyja.com>',
+      from: 'PBJA Artwork Team <onboarding@resend.dev>',
       to: clientEmail,
       subject: subject,
       html: `
@@ -408,7 +414,7 @@ async function sendAdminEmail(action, notes, record, clientEmail) {
       'The client has requested AMENDMENTS to the artwork.';
     
     return await resend.emails.send({
-      from: 'PBJA Artwork Team <info@paperboyja.com>',
+      from: 'PBJA Artwork Team <onboarding@resend.dev>',
       to: 'info@paperboyja.com',
       subject: subject,
       html: `
