@@ -277,7 +277,7 @@ async function sendClientEmail(clientEmail, id, filename) {
     }
     
     return await resend.emails.send({
-      from: 'PBJA Artwork Team <onboarding@resend.dev>',
+      from: 'PBJA Artwork Team <info@paperboyja.com>',
       to: clientEmail,
       subject: subject,
       html: `
@@ -414,7 +414,7 @@ async function sendAdminEmail(action, notes, record, clientEmail) {
       'The client has requested AMENDMENTS to the artwork.';
     
     return await resend.emails.send({
-      from: 'PBJA Artwork Team <onboarding@resend.dev>',
+      from: 'PBJA Artwork Team <info@paperboyja.com>',
       to: 'info@paperboyja.com',
       subject: subject,
       html: `
