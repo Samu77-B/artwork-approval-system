@@ -65,6 +65,51 @@ async function loadArtworkFromReview() {
       const response = await fetch(`/api/artwork/${reviewId}`);
       const data = await response.json();
       
+      // Check if artwork approval has expired
+      if (data.isExpired) {
+        if (artworkPreview) {
+          artworkPreview.innerHTML = `
+            <div style="text-align: center; color: #e74c3c; font-size: 1.1rem; padding: 20px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 6px; margin-bottom: 20px;">
+              <h3 style="margin: 0 0 10px 0;">⏰ Approval Period Expired</h3>
+              <p style="margin: 0 0 15px 0;">This artwork approval request has expired. The 3-day approval period has passed.</p>
+              <p style="margin: 0; font-size: 0.9rem;">Please contact PBJA at <a href="mailto:info@paperboyja.com" style="color: #0074d9;">info@paperboyja.com</a> or call <a href="tel:+18769225483" style="color: #0074d9;">+1 (876) 922-5483</a> for assistance.</p>
+            </div>`;
+        }
+        // Disable form if expired
+        if (clientSection) {
+          const approveRadio = document.getElementById('approve-radio');
+          const amendRadio = document.getElementById('amend-radio');
+          const submitBtn = document.getElementById('submit-btn');
+          if (approveRadio) approveRadio.disabled = true;
+          if (amendRadio) amendRadio.disabled = true;
+          if (submitBtn) submitBtn.disabled = true;
+        }
+        return;
+      }
+      
+      // Display expiration warning if less than 24 hours remaining
+      if (data.hoursRemaining !== undefined && data.hoursRemaining > 0 && data.hoursRemaining <= 24) {
+        const daysRemaining = Math.floor(data.hoursRemaining / 24);
+        const hoursRemaining = Math.floor(data.hoursRemaining % 24);
+        let timeRemainingText = '';
+        if (daysRemaining > 0) {
+          timeRemainingText = `${daysRemaining} day${daysRemaining > 1 ? 's' : ''}`;
+          if (hoursRemaining > 0) {
+            timeRemainingText += ` and ${hoursRemaining} hour${hoursRemaining > 1 ? 's' : ''}`;
+          }
+        } else {
+          timeRemainingText = `${hoursRemaining} hour${hoursRemaining > 1 ? 's' : ''}`;
+        }
+        
+        // Add warning banner above the form
+        const warningBanner = document.createElement('div');
+        warningBanner.style.cssText = 'text-align: center; color: #856404; font-size: 0.95rem; padding: 15px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; margin-bottom: 20px;';
+        warningBanner.innerHTML = `⏰ <strong>Time Remaining:</strong> You have ${timeRemainingText} left to submit your approval response.`;
+        if (clientSection) {
+          clientSection.insertBefore(warningBanner, clientSection.firstChild);
+        }
+      }
+      
       if (data.artworkUrl) {
         console.log('Loading artwork from:', data.artworkUrl);
         
@@ -372,6 +417,25 @@ submitBtn.addEventListener('click', async function() {
     });
     
     if (!response.ok) {
+      // Check if it's an expiration error
+      const errorData = await response.json().catch(() => ({}));
+      if (errorData.error && errorData.error.includes('expired')) {
+        formMessage.innerHTML = `
+          <div style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 6px; text-align: center;">
+            <h4 style="margin: 0 0 10px 0;">⏰ Approval Period Expired</h4>
+            <p style="margin: 0 0 10px 0;">${errorData.error}</p>
+            <p style="margin: 0; font-size: 0.9rem;">Please contact PBJA at <a href="mailto:info@paperboyja.com" style="color: #0074d9;">info@paperboyja.com</a> or call <a href="tel:+18769225483" style="color: #0074d9;">+1 (876) 922-5483</a> for assistance.</p>
+          </div>
+        `;
+        formMessage.style.color = '#721c24';
+        // Disable form
+        approveRadio.disabled = true;
+        amendRadio.disabled = true;
+        amendText.disabled = true;
+        clientEmail.disabled = true;
+        submitBtn.style.display = 'none';
+        return;
+      }
       throw new Error(`Server error: ${response.status} - ${response.statusText}`);
     }
     

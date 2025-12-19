@@ -163,7 +163,8 @@ app.post('/api/upload', upload.single('artwork'), (req, res) => {
     originalName: req.file.originalname, // Store original filename
     clientEmail,
     status: 'pending',
-    notes: ''
+    notes: '',
+    createdAt: new Date().toISOString() // Store creation timestamp for expiration check
   };
   saveDB(artworkDB); // Save to file
   // Send email to client with review link (pass original filename)
@@ -216,10 +217,22 @@ app.get('/api/artwork/:id', (req, res) => {
   console.log('======================');
   
   if (!record) return res.status(404).json({ error: 'Not found' });
+  
+  // Check if artwork approval has expired (3 days = 72 hours)
+  // For records without createdAt, assume they were created now (not expired)
+  const createdAt = record.createdAt ? new Date(record.createdAt) : new Date();
+  const now = new Date();
+  const hoursElapsed = (now - createdAt) / (1000 * 60 * 60);
+  const isExpired = record.createdAt ? hoursElapsed > 72 : false; // Only check expiration if createdAt exists
+  const hoursRemaining = record.createdAt ? Math.max(0, 72 - hoursElapsed) : 72;
+  
   res.json({
     artworkUrl: `/uploads/${record.file}`,
     status: record.status,
-    notes: record.notes
+    notes: record.notes,
+    createdAt: record.createdAt,
+    isExpired: isExpired,
+    hoursRemaining: hoursRemaining
   });
 });
 
@@ -229,6 +242,21 @@ app.post('/api/review/:id', (req, res) => {
   const { action, notes, clientEmail } = req.body;
   const record = artworkDB[id];
   if (!record) return res.status(404).json({ error: 'Not found' });
+  
+  // Check if artwork approval has expired (3 days = 72 hours)
+  // For records without createdAt, assume they were created now (not expired)
+  const createdAt = record.createdAt ? new Date(record.createdAt) : new Date();
+  const now = new Date();
+  const hoursElapsed = (now - createdAt) / (1000 * 60 * 60);
+  const isExpired = record.createdAt ? hoursElapsed > 72 : false; // Only check expiration if createdAt exists
+  
+  if (isExpired) {
+    return res.status(400).json({ 
+      success: false, 
+      error: 'This artwork approval request has expired. The 3-day approval period has passed. Please contact PBJA for assistance.' 
+    });
+  }
+  
   record.status = action;
   record.notes = notes || '';
   saveDB(artworkDB); // Save to file
