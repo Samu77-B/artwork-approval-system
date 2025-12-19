@@ -340,8 +340,14 @@ submitBtn.addEventListener('click', async function() {
   const reviewId = urlParams.get('id');
   
   if (!reviewId) {
-    formMessage.textContent = 'No review ID found. Please use the link sent to your email.';
-    formMessage.style.color = '#e74c3c';
+    formMessage.innerHTML = `
+      <div style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 6px; text-align: center;">
+        <h4 style="margin: 0 0 10px 0;">⚠️ Invalid Access</h4>
+        <p style="margin: 0 0 10px 0;">No review ID found in the URL.</p>
+        <p style="margin: 0; font-size: 0.9rem;">Please use the link sent to your email, or contact PBJA if you need assistance.</p>
+      </div>
+    `;
+    formMessage.style.color = '#721c24';
     return;
   }
   

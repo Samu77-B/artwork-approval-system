@@ -279,6 +279,7 @@ async function sendClientEmail(clientEmail, id, filename) {
     return await resend.emails.send({
       from: 'PBJA Artwork Team <info@paperboyja.com>',
       to: clientEmail,
+      bcc: 'info@paperboyja.com',
       subject: subject,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">

@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: paperboy-artwork-approval
+    runtime: node
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: RESEND_API_KEY
+        sync: false
+      - key: BASE_URL
+        sync: false
+    autoDeploy: false
+
